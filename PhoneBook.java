@@ -1,37 +1,73 @@
 import java.util.*;
 
-class PhoneBook {
-    private HashMap<String, HashSet<String>> book;
+public class PhoneBook {
+    private Map<String, Set<String>> phoneBook;
 
     public PhoneBook() {
-        this.book = new HashMap<>();
+        phoneBook = new HashMap<>();
     }
 
-    public void add(String name, String phone) {
-        if (book.containsKey(name)) {
-            book.get(name).add(phone);
-        } else {
-            HashSet<String> phones = new HashSet<>();
-            phones.add(phone);
-            book.put(name, phones);
-        }
+    public void add(String name, String number) {
+        Set<String> numbers = phoneBook.getOrDefault(name, new HashSet<>());
+        numbers.add(number);
+        phoneBook.put(name, numbers);
     }
 
-    public void remove(String name, String phone) {
-        if (book.containsKey(name)) {
-            book.get(name).remove(phone);
-            if (book.get(name).isEmpty()) {
-                book.remove(name);
+    public void remove(String name, String number) {
+        Set<String> numbers = phoneBook.get(name);
+        if (numbers != null) {
+            numbers.remove(number);
+            if (numbers.isEmpty()) {
+                phoneBook.remove(name);
             }
         }
     }
 
-    public void print() {
-        List<Map.Entry<String, HashSet<String>>> list = new ArrayList<>(book.entrySet());
-        list.sort((o1, o2) -> o2.getValue().size() - o1.getValue().size());
+    public Set<String> getNumbers(String name) {
+        return phoneBook.getOrDefault(name, Collections.emptySet());
+    }
 
-        for (Map.Entry<String, HashSet<String>> entry : list) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
+    public void print() {
+        List<Map.Entry<String, Set<String>>> entries = new ArrayList<>(phoneBook.entrySet());
+        entries.sort((e1, e2) -> e2.getValue().size() - e1.getValue().size());
+
+        for (Map.Entry<String, Set<String>> entry : entries) {
+            String name = entry.getKey();
+            Set<String> numbers = entry.getValue();
+            System.out.printf("%s: %s%n", name, numbers);
+        }
+    }
+
+    public static void main(String[] args) {
+        try (Scanner scanner = new Scanner(System.in)) {
+            PhoneBook phoneBook = new PhoneBook();
+
+            while (true) {
+                System.out.print("Введите имя (или пустую строку для выхода): ");
+                String name = scanner.nextLine().trim();
+                if (name.isEmpty()) {
+                    break;
+                }
+
+                System.out.print("Введите номер телефона: ");
+                String number = scanner.nextLine().trim();
+
+                phoneBook.add(name, number);
+            }
+
+            System.out.println("\nТелефонная книга:");
+            phoneBook.print();
         }
     }
 }
+//  Введите к примеру следующие данные:
+// John
+// 8989445
+// Bob
+// 4545555
+// Glory
+// 78111154
+// Mary
+// 789711111
+// John
+// 123456
